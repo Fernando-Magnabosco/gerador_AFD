@@ -2,13 +2,14 @@ import re
 
 # Non terminal allowed chars
 NT = "<[A-z]+>"
+
 # Terminal allowed chars
 T = "[A-z0-9&]+"
 
 
 REGEXES = {
-    "LEFT_SIDE": NT + "::",
-    "RIGHT_SIDE": "[=\|]+\s" + "(" + T + NT + "|" + T + "|" + NT + ")"
+    "LEFT_SIDE": f"({NT})::",
+    "RIGHT_SIDE": "[=\\|]+\\s" + f"({T}{NT}|{NT}{T}|{T}|{NT})",
 }
 
 
