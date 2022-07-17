@@ -9,7 +9,7 @@ T = "[A-z0-9&]+"
 
 REGEXES = {
     "LEFT_SIDE": f"({NT})::",
-    "RIGHT_SIDE": "[=\\|]+\\s" + f"({T}{NT}|{NT}{T}|{T}|{NT})",
+    "RIGHT_SIDE": "[=\\|]+\\s*" + f"({T}{NT}|{NT}{T}|{T}|{NT})",
 }
 
 
@@ -18,18 +18,6 @@ def read_file(file):
     with open(file, "r") as f:
         lines = f.readlines()
     return lines
-
-
-def strFormatter(str):
-
-    newStr = ""
-    for char in str:
-        if char == "|":
-            newStr = ""
-        else:
-            newStr += char
-
-    return newStr
 
 
 def create_AFND(lines):
