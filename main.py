@@ -14,7 +14,7 @@ REGEXES = {
     "LEFT_SIDE":    f"({NT})::",
     "RIGHT_SIDE":   "[=\\|]+\\s*" + f"({T}{NT}|{NT}{T}|{T}|{NT})",
     "TERMINAL":     "[=\\|]+\\s*" + f"({T})",
-    "NON_TERMINAL": "[=\\|]+\\s*" + f"({T}{NTI} | {NTI}{T} | {NTI})",
+    "ISFINAL":      "^([*])"
 }
 
 class Rule:
@@ -29,8 +29,8 @@ class Rule:
         if len(symbols) == 1:
             self.terminal = symbols[0]
         elif len(symbols) == 2:
-            self.non_terminal = symbols[0]
-            self.terminal = re.search(T, symbols[1]).group(0)
+            self.terminal = re.search(T, symbols[0]).group(0)
+            self.non_terminal = symbols[1].replace(">", "")
 
     def __str__(self):
 
@@ -43,15 +43,23 @@ class Rule:
 class Production:
 
     left = ""
-    rules = []       
-    def __init__(self, left, right):
+    rules = []
+    is_final = False
+
+    def __init__(self, left, right, is_final=False):
+        
+        if is_final:
+            self.is_final = True
         
         self.rules = []
-        self.left = left.strip("<>")
+        self.left = left.strip("*<>")
         
         rules = right
         for rule in rules:
-            self.rules.append(Rule(rule))
+            newRule = Rule(rule)
+            if newRule.terminal and not newRule.non_terminal:
+                self.is_final = True
+            self.rules.append(newRule)
         
         
 
@@ -102,9 +110,8 @@ def identify_Tokens(lines):
             alphabet.update(re.findall(REGEXES["TERMINAL"], line))
             productions.append(Production(leftSide, rightSide))
             noNT += 1
-        else:       
-                                         # It is a token;
-            for char in line:
+        else:                                    # It is a token;
+            for char in line[:-1]:
                 if char == "\n":
                     continue
                 leftSide = f"<{nextNT}>"
@@ -114,14 +121,19 @@ def identify_Tokens(lines):
                 nextNT += 1
                 noNT += 1
                 alphabet.add(char)
+            
+            productions.append(Production(f"<{nextNT}", [f"{line[-1]}"]))
+            nextNT += 1
     
     return Partial(productions, alphabet, noNT)
 
 def create_AFND(Partial):
     
+    
     for production in Partial.productions:
         print (production)
 
+    
     
 
 
