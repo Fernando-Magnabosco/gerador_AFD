@@ -1,0 +1,7 @@
+Left,Right
+<S>,a<A> | b<A> | c<A>
+<A>,a<B> | b<B> | c<B> | &
+<B>,a<A> | b<A> | c<A> | d
+<0>,a<1>
+<1>,b<2>
+<2>,c<3>
