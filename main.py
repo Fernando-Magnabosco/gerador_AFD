@@ -17,20 +17,29 @@ REGEXES = {
     "ISFINAL":      "^([*])"
 }
 
+epsilonState = -1
+
+
 class Rule:
 
-    terminal = None
-    non_terminal = None
+    terminal = ""
+    non_terminal = ""
 
     def __init__(self, string):
 
+        string = string.strip()
         symbols = string.split("<")
+
 
         if len(symbols) == 1:
             self.terminal = symbols[0]
+            self.non_terminal = epsilonState
         elif len(symbols) == 2:
-            self.terminal = re.search(T, symbols[0]).group(0)
-            self.non_terminal = symbols[1].replace(">", "")
+            if symbols[0] != "":
+                self.terminal = re.search(T, symbols[0]).group(0)
+                self.non_terminal = symbols[1].replace(">", "")
+            else:
+                self.non_terminal = symbols[1].replace(">", "")
 
     def __str__(self):
 
@@ -64,7 +73,7 @@ class Production:
         
 
     def __str__(self):
-        separator = "\t|"
+        separator = " | "
         return f"{self.left} ::= {separator.join([str(rule) for rule in self.rules])}"
 
 
@@ -72,13 +81,29 @@ class Partial:
 
     productions = None
     alphabet = None
-    alphabetNT = None
+    noNT = None
 
-    def __init__(self, productions, alphabet, alphabetNT):
+    def __init__(self, productions, alphabet, noNT):
         self.productions = productions
         self.alphabet = alphabet
-        self.alphabetNT = alphabetNT
+        alphabet.add("&")
+        self.noNT = noNT + 1
 
+class AFND:
+
+    table = None
+
+    def __init__(self, table):
+        self.table = table
+    
+    def __str__(self):
+        
+        string = ""
+        for row in self.table:
+            for col in row:
+                string += ("\t") + f"{col} "
+            string += "\n"
+        return string
 
 
 def read_file(file):
@@ -97,7 +122,7 @@ def identify_Tokens(lines):
     noNT = 0
      
     alphabet = set()
-
+    
 
     # processing tokens 
     for line in lines:
@@ -129,9 +154,28 @@ def identify_Tokens(lines):
 
 def create_AFND(Partial):
     
+    table = [["x" for _ in Partial.alphabet] for _ in Partial.productions]
     
-    for production in Partial.productions:
-        print (production)
+
+    for (pIndex, production) in enumerate(Partial.productions):
+        for (sIndex, symbol) in enumerate(Partial.alphabet):
+            for rule in production.rules:
+                if symbol == rule.terminal:
+                    if rule.non_terminal:
+                        table[pIndex][sIndex] = rule.non_terminal
+                    else: 
+                        table[pIndex][sIndex] = epsilonState
+                    
+                
+                
+            
+        
+    for symbol in Partial.alphabet: 
+        print("\t" + symbol, end = "")
+    print("\n")
+    print(AFND(table))
+
+        
 
     
     

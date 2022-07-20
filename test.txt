@@ -1,4 +1,4 @@
 <S>::= a<A> | b<A> | c<A>
-<A>::= a<B> | b<B> | c<B> | &
-<B>::= a<A> | b<A> | c<A> | d
+<A>::= a<B> | b | c<B> | &
+<B>::= a<A> | b<A> | <A> | d
 abc
