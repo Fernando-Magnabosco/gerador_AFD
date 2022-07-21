@@ -30,7 +30,6 @@ class Rule:
         string = string.strip()
         symbols = string.split("<")
 
-
         if len(symbols) == 1:
             self.terminal = symbols[0]
             self.non_terminal = epsilonState
@@ -45,10 +44,10 @@ class Rule:
 
         if self.non_terminal:
             return f"{self.terminal}<{self.non_terminal}>"
-        else: 
+        else:
             return self.terminal
-        
-    
+
+
 class Production:
 
     left = ""
@@ -56,21 +55,19 @@ class Production:
     is_final = False
 
     def __init__(self, left, right, is_final=False):
-        
+
         if is_final:
             self.is_final = True
-        
+
         self.rules = []
         self.left = left.strip("*<>")
-        
+
         rules = right
         for rule in rules:
             newRule = Rule(rule)
             if newRule.terminal and not newRule.non_terminal:
                 self.is_final = True
             self.rules.append(newRule)
-        
-        
 
     def __str__(self):
         separator = " | "
@@ -89,15 +86,16 @@ class Partial:
         alphabet.add("&")
         self.noNT = noNT + 1
 
+
 class AFND:
 
     table = None
 
     def __init__(self, table):
         self.table = table
-    
+
     def __str__(self):
-        
+
         string = ""
         for row in self.table:
             for col in row:
@@ -115,20 +113,18 @@ def read_file(file):
 
 def identify_Tokens(lines):
 
-    
     productions = []
 
     nextNT = 0
     noNT = 0
-     
-    alphabet = set()
-    
 
-    # processing tokens 
+    alphabet = set()
+
+    # processing tokens
     for line in lines:
         line = line.strip()
 
-        if re.match(REGEXES["LEFT_SIDE"], line): # It is a grammar rule;
+        if re.match(REGEXES["LEFT_SIDE"], line):  # It is a grammar rule;
 
             leftSide = re.search(REGEXES["LEFT_SIDE"], line).group(1)
             rightSide = re.findall(REGEXES["RIGHT_SIDE"], line)
@@ -142,43 +138,35 @@ def identify_Tokens(lines):
                 leftSide = f"<{nextNT}>"
                 rightSide = [f"{char}<{nextNT + 1}>"]
                 productions.append(Production(leftSide, rightSide))
-                
+
                 nextNT += 1
                 noNT += 1
                 alphabet.add(char)
-            
+
             productions.append(Production(f"<{nextNT}", [f"{line[-1]}"]))
+            alphabet.add(line[-1])
             nextNT += 1
-    
+
     return Partial(productions, alphabet, noNT)
 
+
 def create_AFND(Partial):
-    
-    table = [["x" for _ in Partial.alphabet] for _ in Partial.productions]
-    
+
+    table = [[[] for _ in Partial.alphabet] for _ in Partial.productions]
 
     for (pIndex, production) in enumerate(Partial.productions):
         for (sIndex, symbol) in enumerate(Partial.alphabet):
             for rule in production.rules:
                 if symbol == rule.terminal:
                     if rule.non_terminal:
-                        table[pIndex][sIndex] = rule.non_terminal
-                    else: 
-                        table[pIndex][sIndex] = epsilonState
-                    
-                
-                
-            
-        
-    for symbol in Partial.alphabet: 
-        print("\t" + symbol, end = "")
+                        table[pIndex][sIndex].append(rule.non_terminal)
+                    else:
+                        table[pIndex][sIndex].append(epsilonState)
+
+    for symbol in Partial.alphabet:
+        print("\t" + symbol, end="")
     print("\n")
     print(AFND(table))
-
-        
-
-    
-    
 
 
 def AFtoCSV(AF):
@@ -191,15 +179,15 @@ def AFtoCSV(AF):
     # df = pd.DataFrame(AF, columns=["Left", "Right"])
     # df.to_csv("AFND.csv", index=False)
 
+
 def main():
 
     lines = read_file("test.txt")
 
     AFPartial = identify_Tokens(lines)
     AFND = create_AFND(AFPartial)
-    
-    AFtoCSV(AFND)
 
+    AFtoCSV(AFND)
 
 
 main()
