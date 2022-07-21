@@ -78,7 +78,7 @@ def create_AFND(Partial):
 
 def main():
 
-    lines = read_file("test.txt")
+    lines = read_file("./files/test.txt")
 
     AFPartial = identify_Tokens(lines)
     AFND = create_AFND(AFPartial)
