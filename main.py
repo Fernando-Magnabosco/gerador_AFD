@@ -18,7 +18,7 @@ REGEXES = {
     "ISFINAL":      "^([*])"
 }
 
-epsilonState = -1
+EPSILONSTATE = -1
 
 
 class Rule:
@@ -33,12 +33,13 @@ class Rule:
 
         if len(symbols) == 1:
             self.terminal = symbols[0]
-            self.non_terminal = epsilonState
+            self.non_terminal = EPSILONSTATE
         elif len(symbols) == 2:
             if symbols[0] != "":
                 self.terminal = re.search(T, symbols[0]).group(0)
                 self.non_terminal = symbols[1].replace(">", "")
             else:
+                self.terminal = "&"
                 self.non_terminal = symbols[1].replace(">", "")
 
     def __str__(self):
@@ -66,6 +67,7 @@ class Production:
         rules = right
         for rule in rules:
             newRule = Rule(rule)
+            print(newRule)
             if newRule.terminal and newRule.non_terminal == -1:
                 self.is_final = True
             self.rules.append(newRule)
@@ -166,7 +168,7 @@ def create_AFND(Partial):
                     if rule.non_terminal:
                         table[pIndex][sIndex].append(rule.non_terminal)
                     else:
-                        table[pIndex][sIndex].append(epsilonState)
+                        table[pIndex][sIndex].append(EPSILONSTATE)
 
     return AFND(table, Partial)
 
