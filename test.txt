@@ -1,5 +1,5 @@
-<S>::= a<A> | b<A> | c<A> | c<B>
-<A>::= a<B> | b | c<B> | &
+<S>::= a<A> | b<A> | c<A> | c<B> | g
+<A>::= a<B> | b | c<W> | &
 cde
 <B>::= a<A> | b<A> | <A> | d
 abc

@@ -1,5 +1,6 @@
 
 import re
+from numpy import product
 import pandas as pd
 
 # Non terminal allowed chars;
@@ -12,7 +13,7 @@ T = "[A-z0-9&]+"
 # Left and right recognizers;
 REGEXES = {
     "LEFT_SIDE":    f"({NT})::",
-    "RIGHT_SIDE":   "[=\\|]+\\s*" + f"({T}{NT}|{NT}{T}|{T}|{NT})",
+    "RIGHT_SIDE":   "[=\\|]+\\s*" + f"({T}{NT}|{T}|{NT})",
     "TERMINAL":     "[=\\|]+\\s*" + f"({T})",
     "ISFINAL":      "^([*])"
 }
@@ -65,7 +66,7 @@ class Production:
         rules = right
         for rule in rules:
             newRule = Rule(rule)
-            if newRule.terminal and not newRule.non_terminal:
+            if newRule.terminal and newRule.non_terminal == -1:
                 self.is_final = True
             self.rules.append(newRule)
 
@@ -90,9 +91,11 @@ class Partial:
 class AFND:
 
     table = None
+    partial = None
 
-    def __init__(self, table):
+    def __init__(self, table, partial):
         self.table = table
+        self.partial = partial
 
     def __str__(self):
 
@@ -128,7 +131,9 @@ def identify_Tokens(lines):
 
             leftSide = re.search(REGEXES["LEFT_SIDE"], line).group(1)
             rightSide = re.findall(REGEXES["RIGHT_SIDE"], line)
+            thisAlphabet = re.findall(REGEXES["TERMINAL"], line)
             alphabet.update(re.findall(REGEXES["TERMINAL"], line))
+
             productions.append(Production(leftSide, rightSide))
             noNT += 1
         else:                                    # It is a token;
@@ -143,7 +148,7 @@ def identify_Tokens(lines):
                 noNT += 1
                 alphabet.add(char)
 
-            productions.append(Production(f"<{nextNT}", [f"{line[-1]}"]))
+            productions.append(Production(f"<{nextNT}", [f"{line[-1]}"], True))
             alphabet.add(line[-1])
             nextNT += 1
 
@@ -163,21 +168,22 @@ def create_AFND(Partial):
                     else:
                         table[pIndex][sIndex].append(epsilonState)
 
-    for symbol in Partial.alphabet:
-        print("\t" + symbol, end="")
-    print("\n")
-    print(AFND(table))
+    return AFND(table, Partial)
 
 
 def AFtoCSV(AF):
 
-    pass
-    # toDF = AF.copy()
-    # for i in range(len(toDF)):
-    #     toDF[i][1] = " | ".join(toDF[i][1])
+    df = pd.DataFrame(AF.table, columns=AF.partial.alphabet)
 
-    # df = pd.DataFrame(AF, columns=["Left", "Right"])
-    # df.to_csv("AFND.csv", index=False)
+    column = []
+    for production in AF.partial.productions:
+        string = ""
+        if production.is_final:
+            string += "*"
+        column.append(string + production.left)
+
+    df.insert(0, 'left', column)
+    df.to_csv("AFND.csv", index=False)
 
 
 def main():
