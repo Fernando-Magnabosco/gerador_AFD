@@ -60,20 +60,7 @@ def identify_Tokens(lines):
     return Partial(productions, alphabet, noNT)
 
 
-def create_AFND(Partial):
 
-    table = [[[] for _ in Partial.alphabet] for _ in Partial.productions]
-
-    for (pIndex, production) in enumerate(Partial.productions):
-        for (sIndex, symbol) in enumerate(Partial.alphabet):
-            for rule in production.rules:
-                if symbol == rule.terminal:
-                    if rule.non_terminal:
-                        table[pIndex][sIndex].append(rule.non_terminal)
-                    else:
-                        table[pIndex][sIndex].append(EPSILONSTATE)
-
-    return AFND(table, Partial)
 
 
 def main():
@@ -81,9 +68,9 @@ def main():
     lines = read_file("./files/test.txt")
 
     AFPartial = identify_Tokens(lines)
-    AFND = create_AFND(AFPartial)
+    AFND = AFPartial.create_AFND()
 
-    AFND.toCSV()
-
+    # AFND.toCSV()
+    AFND.determinize()
 
 main()

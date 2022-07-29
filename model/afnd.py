@@ -1,11 +1,15 @@
 import pandas as pd
 
+from header.regexes import EPSILONSTATE
+
 class AFND:
 
+    HAS_EPSILON = None
     table = None
     partial = None
 
-    def __init__(self, table, partial):
+    def __init__(self, table, hasEpsilon, partial):
+        self.HAS_EPSILON = hasEpsilon
         self.table = table
         self.partial = partial
 
@@ -18,9 +22,18 @@ class AFND:
             string += "\n"
         return string
 
+    def determinize(self):
+        
+        for row in self.table:
+            for col in row:
+                if len(col) >= 2:
+                    print(col)
+                
+
+
     def toCSV(self):
         df = pd.DataFrame(self.table, columns=self.partial.alphabet)
-
+        
         column = []
         for production in self.partial.productions:
             string = ""
@@ -28,5 +41,9 @@ class AFND:
                 string += "*"
             column.append(string + production.left)
 
-        df.insert(0, 'left', column)
+        if self.HAS_EPSILON:
+            column.append(str(EPSILONSTATE) + "*")
+        
+
+        df.insert(0, "left", column)
         df.to_csv("./files/AFND.csv", index=False)

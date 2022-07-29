@@ -3,8 +3,8 @@ import re
 
 class Rule:
 
-    terminal = ""
-    non_terminal = ""
+    terminal = None
+    non_terminal = None
 
     def __init__(self, string):
 
@@ -13,7 +13,8 @@ class Rule:
 
         if len(symbols) == 1:
             self.terminal = symbols[0]
-            self.non_terminal = EPSILONSTATE
+            if self.terminal != "&":
+                self.non_terminal = EPSILONSTATE
         elif len(symbols) == 2:
             if symbols[0] != "":
                 self.terminal = re.search(T, symbols[0]).group(0)
