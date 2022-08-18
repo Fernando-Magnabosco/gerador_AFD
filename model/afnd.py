@@ -1,6 +1,6 @@
 import pandas as pd
 
-from header.regexes import EPSILONSTATE
+from header.defs import EPSILONSTATE
 
 class AFND:
 
@@ -24,6 +24,7 @@ class AFND:
 
     def determinize(self):
         
+        print(self.table)
         for row in self.table:
             for col in row:
                 if len(col) >= 2:

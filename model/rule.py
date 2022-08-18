@@ -1,4 +1,4 @@
-from header.regexes import *
+from header.defs import *
 import re
 
 class Rule:

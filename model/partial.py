@@ -1,5 +1,8 @@
+import re
+
 from model.afnd import *
-from header.regexes import *
+from model.production import *
+from header.defs import *
 
 class Partial:
 
@@ -7,11 +10,48 @@ class Partial:
     alphabet = None
     noNT = None
 
-    def __init__(self, productions, alphabet, noNT):
+    def __init__(self, lines):
+
+        productions = []
+
+        nextNT = 0
+        noNT = 0
+
+        alphabet = set()
+
+        # processing tokens
+        for line in lines:
+            line = line.strip()
+
+            if re.match(REGEXES["LEFT_SIDE"], line):  # It is a grammar rule;
+
+                leftSide = re.search(REGEXES["LEFT_SIDE"], line).group(1)
+                rightSide = re.findall(REGEXES["RIGHT_SIDE"], line)
+                thisAlphabet = re.findall(REGEXES["TERMINAL"], line)
+                alphabet.update(re.findall(REGEXES["TERMINAL"], line))
+
+                productions.append(Production(leftSide, rightSide))
+                noNT += 1
+            else:                                    # It is a token;
+                for char in line[:-1]:
+                    if char == "\n":
+                        continue
+                    leftSide = f"<{nextNT}>"
+                    rightSide = [f"{char}<{nextNT + 1}>"]
+                    productions.append(Production(leftSide, rightSide))
+
+                    nextNT += 1
+                    noNT += 1
+                    alphabet.add(char)
+
+                productions.append(Production(f"<{nextNT}", [f"{line[-1]}"], True))
+                alphabet.add(line[-1])
+                nextNT += 1
+
         self.productions = productions
         self.alphabet = alphabet
-        self.alphabet.add("&")
         self.noNT = noNT + 1
+        self.alphabet.add("&")
 
     def create_AFND(self):
 
