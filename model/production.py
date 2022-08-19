@@ -6,7 +6,7 @@ from .rule import Rule
 class Production:
 
     left = ""
-    rules = set()
+    rules: set = set()
     is_final = False
 
     def __init__(self, left, right, is_final=False):

@@ -1,4 +1,4 @@
-from model.afnd import NDFA
+from model.ndfa import NDFA
 
 
 def read_file(file):
