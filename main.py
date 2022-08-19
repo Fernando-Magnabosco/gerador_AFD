@@ -1,4 +1,4 @@
-from model.partial import Partial
+from model.afnd import NDFA
 
 
 def read_file(file):
@@ -12,11 +12,10 @@ def main():
 
     lines = read_file("./files/test.txt")
 
-    AFPartial = Partial(lines)
-    AFND = AFPartial.create_AFND()
-    # print(AFND)
-    AFND.toCSV()
-    AFND.determinize()
+    afnd = NDFA(lines)
+    print(afnd)
+    afnd.toCSV()
+    # AFPartial.determinize()
 
 
 main()
