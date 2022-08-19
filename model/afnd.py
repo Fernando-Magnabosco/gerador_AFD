@@ -2,6 +2,7 @@ import pandas as pd
 
 from header.defs import EPSILONSTATE
 
+
 class AFND:
 
     HAS_EPSILON = None
@@ -12,6 +13,7 @@ class AFND:
         self.HAS_EPSILON = hasEpsilon
         self.table = table
         self.partial = partial
+        print(*partial.productions)
 
     def __str__(self):
 
@@ -23,18 +25,17 @@ class AFND:
         return string
 
     def determinize(self):
-        
-        print(self.table)
+
+        colsTochange = []
         for row in self.table:
             for col in row:
                 if len(col) >= 2:
-                    print(col)
-                
-
+                    # print(col)
+                    pass
 
     def toCSV(self):
         df = pd.DataFrame(self.table, columns=self.partial.alphabet)
-        
+
         column = []
         for production in self.partial.productions:
             string = ""
@@ -44,7 +45,6 @@ class AFND:
 
         if self.HAS_EPSILON:
             column.append(str(EPSILONSTATE) + "*")
-        
 
         df.insert(0, "left", column)
         df.to_csv("./files/AFND.csv", index=False)

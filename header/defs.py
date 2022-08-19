@@ -1,6 +1,6 @@
 # Non terminal allowed chars;
 NT = "<[A-z]+>"
-NTI = "<([A-z])+>"
+
 
 # Terminal allowed chars;
 T = "[A-z0-9&]+"

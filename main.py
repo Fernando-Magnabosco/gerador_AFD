@@ -1,10 +1,4 @@
-from header.defs import *
-from model.afnd import *
-from model.partial import *
-from model.production import *
-from model.rule import *
-
-
+from model.partial import Partial
 
 
 def read_file(file):
@@ -20,8 +14,9 @@ def main():
 
     AFPartial = Partial(lines)
     AFND = AFPartial.create_AFND()
-    print(AFND)
+    # print(AFND)
     AFND.toCSV()
     AFND.determinize()
+
 
 main()

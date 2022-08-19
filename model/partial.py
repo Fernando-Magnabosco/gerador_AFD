@@ -1,8 +1,13 @@
 import re
 
-from model.afnd import *
-from model.production import *
-from header.defs import *
+from model.afnd import AFND
+from model.production import Production
+from header.defs import REGEXES, EPSILONSTATE
+
+# This is a partial AFND; Basically, it is an auxiliar class
+# that contains the productions of a grammar, but still not
+# processed to an AFND;
+
 
 class Partial:
 
@@ -27,7 +32,6 @@ class Partial:
 
                 leftSide = re.search(REGEXES["LEFT_SIDE"], line).group(1)
                 rightSide = re.findall(REGEXES["RIGHT_SIDE"], line)
-                thisAlphabet = re.findall(REGEXES["TERMINAL"], line)
                 alphabet.update(re.findall(REGEXES["TERMINAL"], line))
 
                 productions.append(Production(leftSide, rightSide))
@@ -44,7 +48,8 @@ class Partial:
                     noNT += 1
                     alphabet.add(char)
 
-                productions.append(Production(f"<{nextNT}", [f"{line[-1]}"], True))
+                productions.append(Production(
+                    f"<{nextNT}", [f"{line[-1]}"], True))
                 alphabet.add(line[-1])
                 nextNT += 1
 
@@ -63,11 +68,12 @@ class Partial:
             for (sIndex, symbol) in enumerate(self.alphabet):
                 for rule in production.rules:
                     if symbol == rule.terminal:
-                        if rule.non_terminal != None:
+                        if rule.non_terminal is not None:
                             table[pIndex][sIndex].append(rule.non_terminal)
-                        if HAS_EPSILON is False and rule.non_terminal == EPSILONSTATE:
+                        if HAS_EPSILON is False \
+                                and rule.non_terminal == EPSILONSTATE:
                             HAS_EPSILON = True
-                            
+
         if HAS_EPSILON:
             table.append([[] for _ in self.alphabet])
 

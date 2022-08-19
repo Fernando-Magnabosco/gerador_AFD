@@ -1,5 +1,8 @@
 from .rule import Rule
 
+# This class represents a production rule of a grammar;
+
+
 class Production:
 
     left = ""
@@ -20,7 +23,8 @@ class Production:
             if newRule.terminal and newRule.non_terminal == -1:
                 self.is_final = True
             self.rules.add(newRule)
-        
+
     def __str__(self):
         separator = " | "
-        return f"{self.left} ::= {separator.join([str(rule) for rule in self.rules])}"
+        return f"{self.left} ::= \
+            {separator.join([str(rule) for rule in self.rules])}"
