@@ -14,15 +14,22 @@ class Production:
         if is_final:
             self.is_final = True
 
-        self.rules = set()
-        self.left = left.strip("*<>")
+        if type(left) is list:
+            self.left = str(left)
+        else:
+            self.left = left.strip("*<>")
+        if type(right) is set:
+            self.rules = right
+        else:
+            self.rules = set()
 
-        rules = right
-        for rule in rules:
-            newRule = Rule(rule)
-            if newRule.terminal and newRule.non_terminal == -1:
-                self.is_final = True
-            self.rules.add(newRule)
+            rules = right
+            for rule in rules:
+                newRule = Rule(rule)
+                if newRule.terminal == "&" or \
+                        (newRule.terminal and newRule.non_terminal == -1):
+                    self.is_final = True
+                self.rules.add(newRule)
 
     def __str__(self):
         separator = " | "

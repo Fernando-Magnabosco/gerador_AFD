@@ -13,4 +13,4 @@ REGEXES = {
     "ISFINAL":      "^([*])"
 }
 
-EPSILONSTATE = -1
+EPSILONSTATE = "eps"
