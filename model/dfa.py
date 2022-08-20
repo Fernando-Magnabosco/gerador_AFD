@@ -1,5 +1,6 @@
 
 
+from header.defs import EPSILONSTATE
 from model.fa import FA
 from model.ndfa import NDFA
 from model.production import Production
@@ -34,11 +35,12 @@ class DFA(FA):
                             rule = hash
                         # else, add it to the list of rules to be merged
                         # into a new production
-                        else:
+                        elif EPSILONSTATE not in rule:
                             toMerge.add(tuple(rule))
                             needToRepeat = True
 
             for production in toMerge:  # create the new productions
+
                 self.pHash.update({production: self.nextNT})
                 isFinal = False
                 rules = set()
