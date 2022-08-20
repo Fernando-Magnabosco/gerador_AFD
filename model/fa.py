@@ -62,6 +62,7 @@ class FA:
 
         for (p, production) in enumerate(self.productions):
             self.pHash.update({production.left: p})
+
             for (s, symbol) in enumerate(self.alphabet):
                 for rule in production.rules:
                     if symbol == rule.terminal:
@@ -84,7 +85,6 @@ class FA:
                 for rule in production:
                     if len(rule) >= 2:  # if the rule has more than one symbol
                         rule.sort()
-
                         hash = self.pHash.get(tuple(rule))
                         # if it has already been hashed, just update to the
                         # new production
@@ -104,11 +104,11 @@ class FA:
 
                 for symbol in production:
                     hash = self.pHash.get(symbol)
-                    if not hash:
+
+                    if hash is None:
                         continue
                     if self.productions[hash].is_final:
                         isFinal = True
-
                     rules.update(self.productions[hash].rules)
 
                 # Update the productions
