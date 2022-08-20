@@ -1,5 +1,4 @@
-from model.ndfa import NDFA
-from model.dfa import DFA
+from model.fa import FA
 
 
 def read_file(file):
@@ -13,12 +12,10 @@ def main():
 
     lines = read_file("./files/test.txt")
 
-    afnd = NDFA(lines)
-
-    afd = DFA(afnd)
-
-    afnd.toCSV("afnd")
-    afd.toCSV("afd")
+    fa = FA(lines)
+    fa.toCSV("afnd")
+    fa.determinize()
+    fa.toCSV("afd")
 
 
 if __name__ == "__main__":
