@@ -1,3 +1,4 @@
+from header.defs import EPSILONSTATE
 from .rule import Rule
 
 # This class represents a production rule of a grammar;
@@ -26,8 +27,9 @@ class Production:
             rules = right
             for rule in rules:
                 newRule = Rule(rule)
-                if newRule.terminal == "&" or \
-                        (newRule.terminal and newRule.non_terminal == -1):
+                print(newRule.terminal, newRule.non_terminal)
+                if (newRule.terminal and newRule.non_terminal == EPSILONSTATE)\
+                        or newRule.non_terminal is None:
                     self.is_final = True
                 self.rules.add(newRule)
 

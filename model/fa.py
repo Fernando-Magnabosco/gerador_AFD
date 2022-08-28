@@ -30,6 +30,11 @@ class FA:
             if re.match(REGEXES["LEFT_SIDE"], line):  # It is a grammar rule;
 
                 leftSide = re.search(REGEXES["LEFT_SIDE"], line).group(1)
+                for production in productions:
+                    if "<"+production.left+">" == leftSide:
+                        raise Exception(
+                            f"Production {leftSide} already exists")
+
                 rightSide = re.findall(REGEXES["RIGHT_SIDE"], line)
                 alphabet.extend(re.findall(REGEXES["TERMINAL"], line))
 
@@ -134,10 +139,10 @@ class FA:
 
         column = []
         for production in self.productions:
-            string = ""
-            if production.is_final:
-                string += "*"
-            column.append(string + production.left)
+            print(production, production.is_final)
+            column.append(
+                f"*{production.left}" if production.is_final
+                else production.left)
 
         if self.HAS_EPSILON:
 
