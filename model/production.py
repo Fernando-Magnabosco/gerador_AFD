@@ -27,7 +27,6 @@ class Production:
             rules = right
             for rule in rules:
                 newRule = Rule(rule)
-                print(newRule.terminal, newRule.non_terminal)
                 if (newRule.terminal and newRule.non_terminal == EPSILONSTATE)\
                         or newRule.non_terminal is None:
                     self.is_final = True

@@ -37,7 +37,6 @@ class FA:
 
                 rightSide = re.findall(REGEXES["RIGHT_SIDE"], line)
                 alphabet.extend(re.findall(REGEXES["TERMINAL"], line))
-
                 productions.append(Production(leftSide, rightSide))
                 noNT += 1
             else:                                    # It is a token;
@@ -60,7 +59,6 @@ class FA:
         alphabet.append("&")
         self.productions = productions
         self.alphabet = sorted(list(set(alphabet)))
-
         self.noNT = noNT + 1
 
         self.table = [[[] for _ in self.alphabet] for _ in self.productions]
@@ -77,6 +75,38 @@ class FA:
                         if self.HAS_EPSILON is False \
                                 and rule.non_terminal == EPSILONSTATE:
                             self.HAS_EPSILON = True
+
+        for (p, production) in enumerate(self.table):
+            reachable = set()
+            if not len(production[0]):
+                continue
+
+            for symbol in production[0]:
+                reachable.add(symbol)
+
+            needToRepeat = True
+            while needToRepeat:
+                needToRepeat = False
+                addToReachable = set()
+                for symbol in reachable:
+                    if symbol not in self.pHash:
+                        continue
+                    for rule in self.table[self.pHash[symbol]]:
+                        if len(rule):
+                            for rsymbol in rule:
+                                if rsymbol not in self.pHash \
+                                        or rsymbol in reachable:
+                                    continue
+                                addToReachable.add(rsymbol)
+                                needToRepeat = True
+                reachable.update(addToReachable)
+
+            for prod in reachable:
+
+                if self.productions[self.pHash[prod]].is_final:
+                    self.productions[p].is_final = True
+                self.productions[p].rules.update(
+                    self.productions[self.pHash[prod]].rules)
 
     def determinize(self):
         self.nextNT = len(self.productions)
@@ -139,7 +169,6 @@ class FA:
 
         column = []
         for production in self.productions:
-            print(production, production.is_final)
             column.append(
                 f"*{production.left}" if production.is_final
                 else production.left)
