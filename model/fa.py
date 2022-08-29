@@ -136,12 +136,18 @@ class FA:
                         # else, add it to the list of rules to be merged
                         # into a new production
                         elif EPSILONSTATE not in rule:
-                            toMerge.add(tuple(rule))
-                            needToRepeat = True
+                            for p in self.productions:
+                                if(list(set(p.left)) == rule):
+                                    break
+                                if p.left == str(list(set(rule))):
+                                    break
+                            else:
+                                toMerge.add(tuple(rule))
+                                needToRepeat = True
 
             for production in toMerge:  # create the new productions
-
                 self.pHash.update({production: self.nextNT})
+
                 isFinal = False
                 rules = set()
 
@@ -156,7 +162,7 @@ class FA:
 
                 # Update the productions
                 self.productions.append(Production(
-                    list(production), rules, isFinal))
+                    list(set(production)), rules, isFinal))
 
                 # Update the table
                 newRow: list = [[] for _ in self.alphabet]
