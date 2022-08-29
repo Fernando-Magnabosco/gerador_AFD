@@ -56,15 +56,55 @@ class FA:
                 alphabet.append(line[-1])
                 self.nextNT += 1
 
-        alphabet.append("&")
         self.productions = productions
         self.alphabet = sorted(list(set(alphabet)))
+        self.alphabet.remove("&")
+
         self.noNT = noNT + 1
+
+        for (p, production) in enumerate(self.productions):
+            self.pHash.update({production.left: p})
+
+        for (p, production) in enumerate(self.productions):  # remove & transitions
+            reachable = set()
+            toRemove = set()
+            for (r, rule) in enumerate(production.rules):
+                if rule.non_terminal is not None and rule.terminal == "&":
+                    reachable.add(rule.non_terminal)
+                    toRemove.add(rule)
+
+            needToRepeat = True
+            while needToRepeat:
+                needToRepeat = False
+                addToReachable = set()
+                for symbol in reachable:
+                    if symbol not in self.pHash:
+                        continue
+                    for rule in self.productions[self.pHash[symbol]].rules:
+                        if rule.non_terminal not in self.pHash \
+                                or rule.non_terminal in reachable:
+                            continue
+                        addToReachable.add(rule.non_terminal)
+                        needToRepeat = True
+                reachable.update(addToReachable)
+
+            for prod in toRemove:
+                self.productions[p].rules.remove(prod)
+
+            for prod in reachable:
+                if self.productions[self.pHash[prod]].is_final:
+                    self.productions[p].is_final = True
+                for rule in self.productions[self.pHash[prod]].rules:
+                    for prodRule in self.productions[p].rules:
+                        if prodRule.non_terminal == rule.non_terminal \
+                                and prodRule.terminal == rule.terminal:
+                            break
+                    else:
+                        self.productions[p].rules.add(rule)
 
         self.table = [[[] for _ in self.alphabet] for _ in self.productions]
 
         for (p, production) in enumerate(self.productions):
-            self.pHash.update({production.left: p})
 
             for (s, symbol) in enumerate(self.alphabet):
                 for rule in production.rules:
@@ -75,38 +115,6 @@ class FA:
                         if self.HAS_EPSILON is False \
                                 and rule.non_terminal == EPSILONSTATE:
                             self.HAS_EPSILON = True
-
-        for (p, production) in enumerate(self.table):
-            reachable = set()
-            if not len(production[0]):
-                continue
-
-            for symbol in production[0]:
-                reachable.add(symbol)
-
-            needToRepeat = True
-            while needToRepeat:
-                needToRepeat = False
-                addToReachable = set()
-                for symbol in reachable:
-                    if symbol not in self.pHash:
-                        continue
-                    for rule in self.table[self.pHash[symbol]]:
-                        if len(rule):
-                            for rsymbol in rule:
-                                if rsymbol not in self.pHash \
-                                        or rsymbol in reachable:
-                                    continue
-                                addToReachable.add(rsymbol)
-                                needToRepeat = True
-                reachable.update(addToReachable)
-
-            for prod in reachable:
-
-                if self.productions[self.pHash[prod]].is_final:
-                    self.productions[p].is_final = True
-                self.productions[p].rules.update(
-                    self.productions[self.pHash[prod]].rules)
 
     def determinize(self):
         self.nextNT = len(self.productions)
