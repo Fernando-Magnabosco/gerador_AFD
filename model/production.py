@@ -15,24 +15,24 @@ class Production:
         if is_final:
             self.is_final = True
 
-        if type(left) is list:
-            self.left = str(left)
-        else:
-            self.left = left.strip("*<>")
-        if type(right) is set:
-            self.rules = right
-        else:
-            self.rules = set()
-
-            rules = right
-            for rule in rules:
-                newRule = Rule(rule)
-                if (newRule.terminal and newRule.non_terminal == EPSILONSTATE)\
-                        or newRule.non_terminal is None:
-                    self.is_final = True
-                self.rules.add(newRule)
+        self.left = left
+        self.rules = set()
+        self.addRules(right)
 
     def __str__(self):
         separator = " | "
         return f"{self.left} ::= \
             {separator.join([str(rule) for rule in self.rules])}"
+
+    def addRules(self, right):
+
+        if type(right) is set:
+            self.rules.update(right)
+            return
+        rules = right
+        for rule in rules:
+            newRule = Rule(rule)
+            if (newRule.terminal and newRule.non_terminal == EPSILONSTATE)\
+                    or newRule.non_terminal is None:
+                self.is_final = True
+            self.rules.add(newRule)
